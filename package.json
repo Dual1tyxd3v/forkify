@@ -1,0 +1,23 @@
+{
+  "name": "fortify",
+  "version": "1.0.0",
+  "description": "Учебный проект из курса Advanced JavaScript by Jonas Schmedtmann",
+  "main": "index.js",
+  "scripts": {
+    "start": "parcel index.html",
+    "build": "parcel buidl index.html"
+  },
+  "author": "dual1tyxd3v",
+  "license": "ISC",
+  "devDependencies": {
+    "@parcel/transformer-sass": "^2.9.3",
+    "parcel": "^2.9.3",
+    "process": "^0.11.10"
+  },
+  "dependencies": {
+    "core-js": "^3.31.1",
+    "fractional": "^1.0.0",
+    "git-filter-repo": "^0.0.30",
+    "regenerator-runtime": "^0.13.11"
+  }
+}

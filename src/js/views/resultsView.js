@@ -6,9 +6,11 @@ class ResultsView extends View {
   _errorMessage = 'There are no results for your query! Try again later.'
 
   _generateMarkUp() {
+    const curId = window.location.hash.slice(1);
+
     return this._data.map(rec => 
       `<li class="preview">
-        <a class="preview__link preview__link--active" href="#${rec.id}">
+        <a class="preview__link ${curId === rec.id ? 'preview__link--active' : ''}" href="#${rec.id}">
           <figure class="preview__fig">
             <img src="${rec.image_url}" alt="${rec.title}" />
           </figure>

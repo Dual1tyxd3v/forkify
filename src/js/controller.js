@@ -13,6 +13,7 @@ const recipeController = async () => {
     if (!id) return;
 
     RenderView.renderSpinner();
+    ResultsView.update(Model.getSearchResult());
 
     await Model.loadRecipe(id);
 
@@ -24,7 +25,7 @@ const recipeController = async () => {
 
 const recipeUpdateServings = (newServings) => {
   Model.updateIngredients(newServings);
-  RenderView.render(Model.state.recipe);
+  RenderView.update(Model.state.recipe);
 };
 
 const searchController = async() => {

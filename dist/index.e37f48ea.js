@@ -591,6 +591,7 @@ const recipeController = async ()=>{
         const id = window.location.hash.slice(1);
         if (!id) return;
         (0, _recipeDefault.default).renderSpinner();
+        (0, _resultsViewDefault.default).update(_models.getSearchResult());
         await _models.loadRecipe(id);
         (0, _recipeDefault.default).render(_models.state.recipe);
     } catch (e) {
@@ -599,7 +600,7 @@ const recipeController = async ()=>{
 };
 const recipeUpdateServings = (newServings)=>{
     _models.updateIngredients(newServings);
-    (0, _recipeDefault.default).render(_models.state.recipe);
+    (0, _recipeDefault.default).update(_models.state.recipe);
 };
 const searchController = async ()=>{
     try {
@@ -7340,6 +7341,17 @@ class View {
     _clearContainer() {
         this._parentContainer.innerHTML = "";
     }
+    update(data) {
+        this._data = data;
+        const newMarkup = this._generateMarkUp();
+        const newElts = Array.from(document.createRange().createContextualFragment(newMarkup).querySelectorAll("*"));
+        const curElts = Array.from(this._parentContainer.querySelectorAll("*"));
+        curElts.forEach((curEl, i)=>{
+            const newEl = newElts[i];
+            if (!newEl.isEqualNode(curEl) && newEl.firstChild?.nodeValue.trim() !== "") curEl.textContent = newEl.textContent;
+            if (!newEl.isEqualNode(curEl)) Array.from(newEl.attributes).forEach((attr)=>curEl.setAttribute(attr.name, attr.value));
+        });
+    }
     renderSpinner() {
         const markUp = `
     <div class="spinner">
@@ -7399,8 +7411,9 @@ class ResultsView extends (0, _viewDefault.default) {
     _parentContainer = document.querySelector(".results");
     _errorMessage = "There are no results for your query! Try again later.";
     _generateMarkUp() {
+        const curId = window.location.hash.slice(1);
         return this._data.map((rec)=>`<li class="preview">
-        <a class="preview__link preview__link--active" href="#${rec.id}">
+        <a class="preview__link ${curId === rec.id ? "preview__link--active" : ""}" href="#${rec.id}">
           <figure class="preview__fig">
             <img src="${rec.image_url}" alt="${rec.title}" />
           </figure>

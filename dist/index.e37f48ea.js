@@ -594,7 +594,7 @@ const recipeController = async ()=>{
         if (!id) return;
         (0, _recipeDefault.default).renderSpinner();
         (0, _resultsViewDefault.default).update(_models.getSearchResult());
-        (0, _bookmarkViewDefault.default).update(_models.state.bookmarks);
+        (0, _bookmarkViewDefault.default).render(_models.state.bookmarks);
         await _models.loadRecipe(id);
         (0, _recipeDefault.default).render(_models.state.recipe);
     } catch (e) {
@@ -2555,6 +2555,12 @@ const state = {
     },
     bookmarks: []
 };
+const init = ()=>{
+    const bookmarks = localStorage.getItem("bookmarks");
+    if (!bookmarks) return;
+    state.bookmarks = JSON.parse(bookmarks);
+};
+init();
 const loadRecipe = async (id)=>{
     try {
         const data = await (0, _helpers.getJSON)((0, _config.API_URL) + id);
@@ -2586,13 +2592,18 @@ const updateIngredients = (newServings)=>{
     });
     state.recipe.servings = newServings;
 };
+const saveBookmarks = ()=>{
+    localStorage.setItem("bookmarks", JSON.stringify(state.bookmarks));
+};
 const addBookmark = (recipe)=>{
     state.bookmarks.push(recipe);
     state.recipe.bookmarked = true;
+    saveBookmarks();
 };
 const deleteBookmark = (id)=>{
     state.bookmarks.splice(state.bookmarks.findIndex((bookmark)=>bookmark.id === id), 1);
     state.recipe.bookmarked = false;
+    saveBookmarks();
 };
 
 },{"./config":"k5Hzs","./helpers":"hGI1E","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"k5Hzs":[function(require,module,exports) {

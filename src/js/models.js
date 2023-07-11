@@ -12,6 +12,16 @@ export const state = {
   bookmarks: []
 };
 
+const init = () => {
+  const bookmarks = localStorage.getItem('bookmarks');
+
+  if (!bookmarks) return;
+
+  state.bookmarks = JSON.parse(bookmarks);
+};
+
+init();
+
 export const loadRecipe = async (id) => {
   try {
     const data = await getJSON(API_URL + id);
@@ -48,12 +58,18 @@ export const updateIngredients = (newServings) => {
   state.recipe.servings = newServings;
 };
 
+const saveBookmarks = () => {
+  localStorage.setItem('bookmarks', JSON.stringify(state.bookmarks));
+};
+
 export const addBookmark = (recipe) => {
   state.bookmarks.push(recipe);
   state.recipe.bookmarked = true;
+  saveBookmarks();
 }
 
 export const deleteBookmark = (id) => {
   state.bookmarks.splice(state.bookmarks.findIndex(bookmark => bookmark.id === id), 1);
   state.recipe.bookmarked = false;
+  saveBookmarks();
 }

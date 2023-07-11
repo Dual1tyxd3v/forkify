@@ -15,7 +15,7 @@ const recipeController = async () => {
 
     RenderView.renderSpinner();
     ResultsView.update(Model.getSearchResult());
-    BookmarkView.update(Model.state.bookmarks);
+    BookmarkView.render(Model.state.bookmarks);
 
     await Model.loadRecipe(id);
 

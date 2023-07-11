@@ -586,12 +586,15 @@ var _resultsView = require("./views/resultsView");
 var _resultsViewDefault = parcelHelpers.interopDefault(_resultsView);
 var _pagination = require("./views/pagination");
 var _paginationDefault = parcelHelpers.interopDefault(_pagination);
+var _bookmarkView = require("./views/bookmarkView");
+var _bookmarkViewDefault = parcelHelpers.interopDefault(_bookmarkView);
 const recipeController = async ()=>{
     try {
         const id = window.location.hash.slice(1);
         if (!id) return;
         (0, _recipeDefault.default).renderSpinner();
         (0, _resultsViewDefault.default).update(_models.getSearchResult());
+        (0, _bookmarkViewDefault.default).update(_models.state.bookmarks);
         await _models.loadRecipe(id);
         (0, _recipeDefault.default).render(_models.state.recipe);
     } catch (e) {
@@ -620,6 +623,7 @@ const paginationController = (page)=>{
 const controllerToggleBookmark = ()=>{
     _models.state.recipe.bookmarked ? _models.deleteBookmark(_models.state.recipe.id) : _models.addBookmark(_models.state.recipe);
     (0, _recipeDefault.default).update(_models.state.recipe);
+    (0, _bookmarkViewDefault.default).render(_models.state.bookmarks);
 };
 const init = ()=>{
     (0, _recipeDefault.default).addEventHandler(recipeController);
@@ -630,7 +634,7 @@ const init = ()=>{
 };
 init();
 
-},{"core-js/modules/web.immediate.js":"49tUX","regenerator-runtime/runtime":"dXNgZ","./models":"edpJG","./views/recipe":"dRlYE","./views/searchView":"9OQAM","./views/resultsView":"cSbZE","./views/pagination":"lOFRU","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"49tUX":[function(require,module,exports) {
+},{"core-js/modules/web.immediate.js":"49tUX","regenerator-runtime/runtime":"dXNgZ","./models":"edpJG","./views/recipe":"dRlYE","./views/searchView":"9OQAM","./views/resultsView":"cSbZE","./views/pagination":"lOFRU","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","./views/bookmarkView":"7YaI3"}],"49tUX":[function(require,module,exports) {
 // TODO: Remove this module from `core-js@4` since it's split to modules listed below
 require("52e9b3eefbbce1ed");
 require("292fa64716f5b39e");
@@ -7371,6 +7375,7 @@ class View {
         const newMarkup = this._generateMarkUp();
         const newElts = Array.from(document.createRange().createContextualFragment(newMarkup).querySelectorAll("*"));
         const curElts = Array.from(this._parentContainer.querySelectorAll("*"));
+        if (!newElts.length || !curElts.length) return;
         curElts.forEach((curEl, i)=>{
             const newEl = newElts[i];
             if (!newEl.isEqualNode(curEl) && newEl.firstChild?.nodeValue.trim() !== "") curEl.textContent = newEl.textContent;
@@ -7428,13 +7433,22 @@ exports.default = new SearchView();
 },{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"cSbZE":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
+var _previeView = require("./previeView");
+var _previeViewDefault = parcelHelpers.interopDefault(_previeView);
+class ResultsView extends (0, _previeViewDefault.default) {
+    _parentContainer = document.querySelector(".results");
+    _errorMessage = "There are no results for your query! Try again later.";
+}
+exports.default = new ResultsView();
+
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","./previeView":"hRMT5"}],"hRMT5":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
 var _iconsSvg = require("url:../../img/icons.svg");
 var _iconsSvgDefault = parcelHelpers.interopDefault(_iconsSvg);
 var _view = require("./View");
 var _viewDefault = parcelHelpers.interopDefault(_view);
-class ResultsView extends (0, _viewDefault.default) {
-    _parentContainer = document.querySelector(".results");
-    _errorMessage = "There are no results for your query! Try again later.";
+class PreviewView extends (0, _viewDefault.default) {
     _generateMarkUp() {
         const curId = window.location.hash.slice(1);
         return this._data.map((rec)=>`<li class="preview">
@@ -7455,7 +7469,7 @@ class ResultsView extends (0, _viewDefault.default) {
       </li>`).join("");
     }
 }
-exports.default = new ResultsView();
+exports.default = PreviewView;
 
 },{"url:../../img/icons.svg":"loVOp","./View":"5cUXS","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"lOFRU":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
@@ -7503,6 +7517,17 @@ class PaginationView extends (0, _viewDefault.default) {
 }
 exports.default = new PaginationView();
 
-},{"url:../../img/icons.svg":"loVOp","./View":"5cUXS","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}]},["aD7Zm","aenu9"], "aenu9", "parcelRequire4e33")
+},{"url:../../img/icons.svg":"loVOp","./View":"5cUXS","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"7YaI3":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+var _previeView = require("./previeView");
+var _previeViewDefault = parcelHelpers.interopDefault(_previeView);
+class BookmarkView extends (0, _previeViewDefault.default) {
+    _parentContainer = document.querySelector(".bookmarks__list");
+    _errorMessage = "No bookmarks yet. Find a nice recipe and bookmark it :)";
+}
+exports.default = new BookmarkView();
+
+},{"./previeView":"hRMT5","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}]},["aD7Zm","aenu9"], "aenu9", "parcelRequire4e33")
 
 //# sourceMappingURL=index.e37f48ea.js.map

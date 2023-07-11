@@ -5,6 +5,7 @@ import RenderView from './views/recipe';
 import SearchView from './views/searchView';
 import ResultsView from './views/resultsView';
 import PaginationView from './views/pagination';
+import BookmarkView from './views/bookmarkView';
 
 const recipeController = async () => {
   try {
@@ -14,6 +15,7 @@ const recipeController = async () => {
 
     RenderView.renderSpinner();
     ResultsView.update(Model.getSearchResult());
+    BookmarkView.update(Model.state.bookmarks);
 
     await Model.loadRecipe(id);
 
@@ -53,6 +55,7 @@ const controllerToggleBookmark = () => {
     ? Model.deleteBookmark(Model.state.recipe.id)
     : Model.addBookmark(Model.state.recipe);
   RenderView.update(Model.state.recipe);
+  BookmarkView.render(Model.state.bookmarks);
 }
 
 const init = () => {

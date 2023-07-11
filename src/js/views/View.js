@@ -21,9 +21,10 @@ export default class View {
     const newMarkup = this._generateMarkUp();
     const newElts = Array.from(document.createRange().createContextualFragment(newMarkup).querySelectorAll('*'));
     const curElts = Array.from(this._parentContainer.querySelectorAll('*'));
+    if (!newElts.length || !curElts.length) return;
+    
     curElts.forEach((curEl, i) => {
       const newEl = newElts[i];
-
       if (!newEl.isEqualNode(curEl) && newEl.firstChild?.nodeValue.trim() !== '') {
         curEl.textContent = newEl.textContent;
       }

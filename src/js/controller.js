@@ -22,6 +22,11 @@ const recipeController = async () => {
   }
 };
 
+const recipeUpdateServings = (newServings) => {
+  Model.updateIngredients(newServings);
+  RenderView.render(Model.state.recipe);
+};
+
 const searchController = async() => {
   try {
     const query = SearchView.getQuery();
@@ -46,5 +51,6 @@ const init = () => {
   RenderView.addEventHandler(recipeController);
   SearchView.addEventHandler(searchController);
   PaginationView.addEventHandler(paginationController);
+  RenderView.addEventHandlerUpdateServings(recipeUpdateServings);
 }
 init();

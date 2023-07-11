@@ -36,3 +36,10 @@ export const getSearchResult = (page = state.search.page) => {
     (page - 1) * MAX_SEARCH_RESULTS, page * MAX_SEARCH_RESULTS
   );
 };
+
+export const updateIngredients = (newServings) => {
+  state.recipe.ingredients.forEach(ing => {
+    ing.quantity = ing.quantity * newServings / state.recipe.servings;
+  });
+  state.recipe.servings = newServings;
+};

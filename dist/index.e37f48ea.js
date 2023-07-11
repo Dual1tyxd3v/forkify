@@ -597,6 +597,10 @@ const recipeController = async ()=>{
         (0, _recipeDefault.default).renderError();
     }
 };
+const recipeUpdateServings = (newServings)=>{
+    _models.updateIngredients(newServings);
+    (0, _recipeDefault.default).render(_models.state.recipe);
+};
 const searchController = async ()=>{
     try {
         const query = (0, _searchViewDefault.default).getQuery();
@@ -616,40 +620,11 @@ const init = ()=>{
     (0, _recipeDefault.default).addEventHandler(recipeController);
     (0, _searchViewDefault.default).addEventHandler(searchController);
     (0, _paginationDefault.default).addEventHandler(paginationController);
+    (0, _recipeDefault.default).addEventHandlerUpdateServings(recipeUpdateServings);
 };
 init();
 
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","core-js/modules/web.immediate.js":"49tUX","regenerator-runtime/runtime":"dXNgZ","./models":"edpJG","./views/recipe":"dRlYE","./views/searchView":"9OQAM","./views/resultsView":"cSbZE","./views/pagination":"lOFRU"}],"gkKU3":[function(require,module,exports) {
-exports.interopDefault = function(a) {
-    return a && a.__esModule ? a : {
-        default: a
-    };
-};
-exports.defineInteropFlag = function(a) {
-    Object.defineProperty(a, "__esModule", {
-        value: true
-    });
-};
-exports.exportAll = function(source, dest) {
-    Object.keys(source).forEach(function(key) {
-        if (key === "default" || key === "__esModule" || dest.hasOwnProperty(key)) return;
-        Object.defineProperty(dest, key, {
-            enumerable: true,
-            get: function() {
-                return source[key];
-            }
-        });
-    });
-    return dest;
-};
-exports.export = function(dest, destName, get) {
-    Object.defineProperty(dest, destName, {
-        enumerable: true,
-        get: get
-    });
-};
-
-},{}],"49tUX":[function(require,module,exports) {
+},{"core-js/modules/web.immediate.js":"49tUX","regenerator-runtime/runtime":"dXNgZ","./models":"edpJG","./views/recipe":"dRlYE","./views/searchView":"9OQAM","./views/resultsView":"cSbZE","./views/pagination":"lOFRU","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"49tUX":[function(require,module,exports) {
 // TODO: Remove this module from `core-js@4` since it's split to modules listed below
 require("52e9b3eefbbce1ed");
 require("292fa64716f5b39e");
@@ -2555,6 +2530,7 @@ parcelHelpers.export(exports, "state", ()=>state);
 parcelHelpers.export(exports, "loadRecipe", ()=>loadRecipe);
 parcelHelpers.export(exports, "searchRecipe", ()=>searchRecipe);
 parcelHelpers.export(exports, "getSearchResult", ()=>getSearchResult);
+parcelHelpers.export(exports, "updateIngredients", ()=>updateIngredients);
 var _config = require("./config");
 var _helpers = require("./helpers");
 const state = {
@@ -2589,6 +2565,12 @@ const getSearchResult = (page = state.search.page)=>{
     state.search.page = page;
     return state.search.results.slice((page - 1) * (0, _config.MAX_SEARCH_RESULTS), page * (0, _config.MAX_SEARCH_RESULTS));
 };
+const updateIngredients = (newServings)=>{
+    state.recipe.ingredients.forEach((ing)=>{
+        ing.quantity = ing.quantity * newServings / state.recipe.servings;
+    });
+    state.recipe.servings = newServings;
+};
 
 },{"./config":"k5Hzs","./helpers":"hGI1E","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"k5Hzs":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
@@ -2600,7 +2582,37 @@ const API_URL = "https://forkify-api.herokuapp.com/api/v2/recipes/";
 const FETCH_DELAY = 6;
 const MAX_SEARCH_RESULTS = 10;
 
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"hGI1E":[function(require,module,exports) {
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"gkKU3":[function(require,module,exports) {
+exports.interopDefault = function(a) {
+    return a && a.__esModule ? a : {
+        default: a
+    };
+};
+exports.defineInteropFlag = function(a) {
+    Object.defineProperty(a, "__esModule", {
+        value: true
+    });
+};
+exports.exportAll = function(source, dest) {
+    Object.keys(source).forEach(function(key) {
+        if (key === "default" || key === "__esModule" || dest.hasOwnProperty(key)) return;
+        Object.defineProperty(dest, key, {
+            enumerable: true,
+            get: function() {
+                return source[key];
+            }
+        });
+    });
+    return dest;
+};
+exports.export = function(dest, destName, get) {
+    Object.defineProperty(dest, destName, {
+        enumerable: true,
+        get: get
+    });
+};
+
+},{}],"hGI1E":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "getJSON", ()=>getJSON);
@@ -2719,6 +2731,14 @@ class RecipeView extends (0, _viewDefault.default) {
             "hashchange"
         ].forEach((ev)=>window.addEventListener(ev, callback));
     }
+    addEventHandlerUpdateServings(callback) {
+        this._parentContainer.addEventListener("click", (e)=>{
+            const btn = e.target.closest(".btn--increase-servings");
+            if (!btn) return;
+            const newServings = +btn.dataset.updateTo;
+            if (newServings > 0) callback(newServings);
+        });
+    }
     _generateMarkUp() {
         return `
     <figure class="recipe__fig">
@@ -2744,12 +2764,12 @@ class RecipeView extends (0, _viewDefault.default) {
         <span class="recipe__info-text">servings</span>
 
         <div class="recipe__info-buttons">
-          <button class="btn--tiny btn--increase-servings">
+          <button class="btn--tiny btn--increase-servings" data-update-to="${this._data.servings - 1}">
             <svg>
               <use href="${0, _iconsSvgDefault.default}#icon-minus-circle"></use>
             </svg>
           </button>
-          <button class="btn--tiny btn--increase-servings">
+          <button class="btn--tiny btn--increase-servings" data-update-to="${this._data.servings + 1}">
             <svg>
               <use href="${0, _iconsSvgDefault.default}#icon-plus-circle"></use>
             </svg>

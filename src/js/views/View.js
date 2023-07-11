@@ -22,7 +22,7 @@ export default class View {
     const newElts = Array.from(document.createRange().createContextualFragment(newMarkup).querySelectorAll('*'));
     const curElts = Array.from(this._parentContainer.querySelectorAll('*'));
     if (!newElts.length || !curElts.length) return;
-    
+
     curElts.forEach((curEl, i) => {
       const newEl = newElts[i];
       if (!newEl.isEqualNode(curEl) && newEl.firstChild?.nodeValue.trim() !== '') {
@@ -39,7 +39,7 @@ export default class View {
     const markUp = `
     <div class="spinner">
       <svg>
-        <use href="${icons}_icon-loader"></use>
+        <use href="${icons}#icon-loader"></use>
       </svg>
     </div>`;
     this._clearContainer();
@@ -51,7 +51,7 @@ export default class View {
     <div class="error">
       <div>
         <svg>
-          <use href="${icons}_icon-alert-triangle"></use>
+          <use href="${icons}#icon-alert-triangle"></use>
         </svg>
       </div>
       <p>${message}</p>

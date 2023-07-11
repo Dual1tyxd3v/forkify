@@ -593,10 +593,10 @@ var _modalViewDefault = parcelHelpers.interopDefault(_modalView);
 const recipeController = async ()=>{
     try {
         const id = window.location.hash.slice(1);
+        (0, _bookmarkViewDefault.default).render(_models.state.bookmarks);
         if (!id) return;
         (0, _recipeDefault.default).renderSpinner();
         (0, _resultsViewDefault.default).update(_models.getSearchResult());
-        (0, _bookmarkViewDefault.default).render(_models.state.bookmarks);
         await _models.loadRecipe(id);
         (0, _recipeDefault.default).render(_models.state.recipe);
     } catch (e) {
@@ -611,6 +611,7 @@ const searchController = async ()=>{
     try {
         const query = (0, _searchViewDefault.default).getQuery();
         if (!query) return;
+        (0, _resultsViewDefault.default).renderSpinner();
         await _models.searchRecipe(query);
         (0, _resultsViewDefault.default).render(_models.getSearchResult());
         (0, _paginationDefault.default).render(_models.state.search);
@@ -627,8 +628,16 @@ const controllerToggleBookmark = ()=>{
     (0, _recipeDefault.default).update(_models.state.recipe);
     (0, _bookmarkViewDefault.default).render(_models.state.bookmarks);
 };
-const controllerAddRecipe = (data)=>{
-    console.log(data);
+const controllerAddRecipe = async (data)=>{
+    try {
+        (0, _modalViewDefault.default).renderSpinner();
+        await _models.uploadRecipe(data);
+        (0, _recipeDefault.default).render(_models.state.recipe);
+        (0, _bookmarkViewDefault.default).render(_models.state.bookmarks);
+        (0, _modalViewDefault.default).toggleModal();
+    } catch (e) {
+        (0, _modalViewDefault.default).renderError(e.message);
+    }
 };
 const init = ()=>{
     (0, _recipeDefault.default).addEventHandler(recipeController);
@@ -2549,6 +2558,7 @@ parcelHelpers.export(exports, "getSearchResult", ()=>getSearchResult);
 parcelHelpers.export(exports, "updateIngredients", ()=>updateIngredients);
 parcelHelpers.export(exports, "addBookmark", ()=>addBookmark);
 parcelHelpers.export(exports, "deleteBookmark", ()=>deleteBookmark);
+parcelHelpers.export(exports, "uploadRecipe", ()=>uploadRecipe);
 var _config = require("./config");
 var _helpers = require("./helpers");
 const state = {
@@ -2611,6 +2621,35 @@ const deleteBookmark = (id)=>{
     state.recipe.bookmarked = false;
     saveBookmarks();
 };
+const uploadRecipe = async (data)=>{
+    try {
+        const ingredients = Object.entries(data).filter((entry)=>entry[0].startsWith("ingredient") && entry[1].length > 0).map((ing)=>{
+            const ingArr = ing[1].trim().split(",");
+            if (ingArr.length !== 3) throw new Error("Incorrect input data!");
+            const [quantity, unit, description] = ingArr;
+            return {
+                quantity: quantity ? +quantity : null,
+                unit,
+                description
+            };
+        });
+        const recipe = {
+            title: data.title,
+            ingredients,
+            image_url: data.image_url,
+            source_url: data.source_url,
+            publisher: data.publisher,
+            servings: data.servings,
+            cooking_time: data.cooking_time
+        };
+        const newRecipe = await (0, _helpers.postJSON)(`${(0, _config.API_URL)}?key=${(0, _config.KEY)}`, recipe);
+        newRecipe.data.recipe.bookmarked = true;
+        addBookmark(newRecipe.data.recipe);
+        state.recipe = newRecipe.data.recipe;
+    } catch (e) {
+        throw e;
+    }
+};
 
 },{"./config":"k5Hzs","./helpers":"hGI1E","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"k5Hzs":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
@@ -2618,9 +2657,11 @@ parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "API_URL", ()=>API_URL);
 parcelHelpers.export(exports, "FETCH_DELAY", ()=>FETCH_DELAY);
 parcelHelpers.export(exports, "MAX_SEARCH_RESULTS", ()=>MAX_SEARCH_RESULTS);
+parcelHelpers.export(exports, "KEY", ()=>KEY);
 const API_URL = "https://forkify-api.herokuapp.com/api/v2/recipes/";
 const FETCH_DELAY = 6;
 const MAX_SEARCH_RESULTS = 10;
+const KEY = "9fb30140-e107-4a89-99ba-932ddb0fb1cd";
 
 },{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"gkKU3":[function(require,module,exports) {
 exports.interopDefault = function(a) {
@@ -2656,6 +2697,7 @@ exports.export = function(dest, destName, get) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "getJSON", ()=>getJSON);
+parcelHelpers.export(exports, "postJSON", ()=>postJSON);
 var _config = require("./config");
 const timeout = function(s) {
     return new Promise(function(_, reject) {
@@ -2671,6 +2713,24 @@ const getJSON = async (url)=>{
             timeout((0, _config.FETCH_DELAY))
         ]);
         if (!resp.ok) throw new Error("Could not found!");
+        return await resp.json();
+    } catch (e) {
+        throw e;
+    }
+};
+const postJSON = async (url, body)=>{
+    try {
+        const resp = await Promise.race([
+            fetch(url, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(body)
+            }),
+            timeout((0, _config.FETCH_DELAY))
+        ]);
+        if (!resp.ok) throw new Error("Could not post!");
         return await resp.json();
     } catch (e) {
         throw e;
@@ -7403,7 +7463,7 @@ class View {
         const markUp = `
     <div class="spinner">
       <svg>
-        <use href="${(0, _iconsSvgDefault.default)}_icon-loader"></use>
+        <use href="${(0, _iconsSvgDefault.default)}#icon-loader"></use>
       </svg>
     </div>`;
         this._clearContainer();
@@ -7414,7 +7474,7 @@ class View {
     <div class="error">
       <div>
         <svg>
-          <use href="${(0, _iconsSvgDefault.default)}_icon-alert-triangle"></use>
+          <use href="${(0, _iconsSvgDefault.default)}#icon-alert-triangle"></use>
         </svg>
       </div>
       <p>${message}</p>
@@ -7555,27 +7615,27 @@ class ModalView extends (0, _viewDefault.default) {
     _btnClose = document.querySelector(".btn--close-modal");
     _overlay = document.querySelector(".overlay");
     _window = document.querySelector(".add-recipe-window");
-    _form = document.querySelector(".upload");
+    _parentContainer = document.querySelector(".upload");
     constructor(){
         super();
         this._addEventHandlerCloseModal();
         this._addEventHandlerOpenModal();
     }
     addEventHandlerSubmit(callback) {
-        this._form.addEventListener("submit", function(e) {
+        this._parentContainer.addEventListener("submit", function(e) {
             e.preventDefault();
             const data = new FormData(this);
             callback(Object.fromEntries(data));
         });
     }
     _addEventHandlerOpenModal() {
-        this._btnOpen.addEventListener("click", this._toggleModal.bind(this));
+        this._btnOpen.addEventListener("click", this.toggleModal.bind(this));
     }
     _addEventHandlerCloseModal() {
-        this._btnClose.addEventListener("click", this._toggleModal.bind(this));
-        this._overlay.addEventListener("click", this._toggleModal.bind(this));
+        this._btnClose.addEventListener("click", this.toggleModal.bind(this));
+        this._overlay.addEventListener("click", this.toggleModal.bind(this));
     }
-    _toggleModal() {
+    toggleModal() {
         this._overlay.classList.toggle("hidden");
         this._window.classList.toggle("hidden");
     }

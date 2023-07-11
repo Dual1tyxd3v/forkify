@@ -5,7 +5,7 @@ class ModalView extends View {
   _btnClose = document.querySelector('.btn--close-modal');
   _overlay = document.querySelector('.overlay');
   _window = document.querySelector('.add-recipe-window');
-  _form = document.querySelector('.upload');
+  _parentContainer = document.querySelector('.upload');
 
   constructor() {
     super();
@@ -15,7 +15,7 @@ class ModalView extends View {
   }
 
   addEventHandlerSubmit(callback) {
-    this._form.addEventListener('submit', function(e) {
+    this._parentContainer.addEventListener('submit', function(e) {
       e.preventDefault();
 
       const data = new FormData(this);
@@ -24,15 +24,15 @@ class ModalView extends View {
   }
 
   _addEventHandlerOpenModal() {
-    this._btnOpen.addEventListener('click', this._toggleModal.bind(this));
+    this._btnOpen.addEventListener('click', this.toggleModal.bind(this));
   }
 
   _addEventHandlerCloseModal() {
-    this._btnClose.addEventListener('click', this._toggleModal.bind(this));
-    this._overlay.addEventListener('click', this._toggleModal.bind(this));
+    this._btnClose.addEventListener('click', this.toggleModal.bind(this));
+    this._overlay.addEventListener('click', this.toggleModal.bind(this));
   }
 
-  _toggleModal() {
+  toggleModal() {
     this._overlay.classList.toggle('hidden');
     this._window.classList.toggle('hidden');
   }

@@ -1,5 +1,5 @@
-import { API_URL, MAX_SEARCH_RESULTS } from "./config";
-import { getJSON } from "./helpers";
+import { API_URL, MAX_SEARCH_RESULTS, KEY } from "./config";
+import { getJSON, postJSON } from "./helpers";
 
 export const state = {
   recipe: {},
@@ -73,3 +73,33 @@ export const deleteBookmark = (id) => {
   state.recipe.bookmarked = false;
   saveBookmarks();
 }
+
+export const uploadRecipe = async (data) => {
+  try {
+    const ingredients = Object.entries(data)
+      .filter(entry => entry[0].startsWith('ingredient') && entry[1].length > 0)
+      .map(ing => {
+        const ingArr = ing[1].trim().split(',');
+        if (ingArr.length !== 3) throw new Error('Incorrect input data!');
+        const [quantity, unit, description] = ingArr;
+        return { quantity: quantity ? +quantity : null, unit, description };
+      });
+    const recipe = {
+      title: data.title,
+      ingredients,
+      image_url: data.image_url,
+      source_url: data.source_url,
+      publisher: data.publisher,
+      servings: data.servings,
+      cooking_time: data.cooking_time,
+    };
+
+    const newRecipe = await postJSON(`${API_URL}?key=${KEY}`, recipe);
+    newRecipe.data.recipe.bookmarked = true;
+    addBookmark(newRecipe.data.recipe);
+
+    state.recipe = newRecipe.data.recipe;
+  } catch (e) {
+    throw e;
+  }
+};

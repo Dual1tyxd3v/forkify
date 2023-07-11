@@ -11,13 +11,12 @@ import ModalView from './views/modalView';
 const recipeController = async () => {
   try {
     const id = window.location.hash.slice(1);
-
+    BookmarkView.render(Model.state.bookmarks);
     if (!id) return;
 
     RenderView.renderSpinner();
     ResultsView.update(Model.getSearchResult());
-    BookmarkView.render(Model.state.bookmarks);
-
+  
     await Model.loadRecipe(id);
 
     RenderView.render(Model.state.recipe);
@@ -36,6 +35,7 @@ const searchController = async() => {
     const query = SearchView.getQuery();
 
     if (!query) return;
+    ResultsView.renderSpinner();
 
     await Model.searchRecipe(query);
 
@@ -59,8 +59,18 @@ const controllerToggleBookmark = () => {
   BookmarkView.render(Model.state.bookmarks);
 }
 
-const controllerAddRecipe = (data) => {
-  console.log(data);
+const controllerAddRecipe = async (data) => {
+  try {
+    ModalView.renderSpinner();
+
+    await Model.uploadRecipe(data);
+
+    RenderView.render(Model.state.recipe);
+    BookmarkView.render(Model.state.bookmarks);
+    ModalView.toggleModal();
+  } catch (e) {
+    ModalView.renderError(e.message);
+  }
 }
 
 const init = () => {

@@ -6,6 +6,7 @@ import SearchView from './views/searchView';
 import ResultsView from './views/resultsView';
 import PaginationView from './views/pagination';
 import BookmarkView from './views/bookmarkView';
+import ModalView from './views/modalView';
 
 const recipeController = async () => {
   try {
@@ -58,11 +59,16 @@ const controllerToggleBookmark = () => {
   BookmarkView.render(Model.state.bookmarks);
 }
 
+const controllerAddRecipe = (data) => {
+  console.log(data);
+}
+
 const init = () => {
   RenderView.addEventHandler(recipeController);
   SearchView.addEventHandler(searchController);
   RenderView.addEventHandlerBookmark(controllerToggleBookmark);
   PaginationView.addEventHandler(paginationController);
   RenderView.addEventHandlerUpdateServings(recipeUpdateServings);
+  ModalView.addEventHandlerSubmit(controllerAddRecipe);
 }
 init();

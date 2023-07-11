@@ -588,6 +588,8 @@ var _pagination = require("./views/pagination");
 var _paginationDefault = parcelHelpers.interopDefault(_pagination);
 var _bookmarkView = require("./views/bookmarkView");
 var _bookmarkViewDefault = parcelHelpers.interopDefault(_bookmarkView);
+var _modalView = require("./views/modalView");
+var _modalViewDefault = parcelHelpers.interopDefault(_modalView);
 const recipeController = async ()=>{
     try {
         const id = window.location.hash.slice(1);
@@ -625,16 +627,20 @@ const controllerToggleBookmark = ()=>{
     (0, _recipeDefault.default).update(_models.state.recipe);
     (0, _bookmarkViewDefault.default).render(_models.state.bookmarks);
 };
+const controllerAddRecipe = (data)=>{
+    console.log(data);
+};
 const init = ()=>{
     (0, _recipeDefault.default).addEventHandler(recipeController);
     (0, _searchViewDefault.default).addEventHandler(searchController);
     (0, _recipeDefault.default).addEventHandlerBookmark(controllerToggleBookmark);
     (0, _paginationDefault.default).addEventHandler(paginationController);
     (0, _recipeDefault.default).addEventHandlerUpdateServings(recipeUpdateServings);
+    (0, _modalViewDefault.default).addEventHandlerSubmit(controllerAddRecipe);
 };
 init();
 
-},{"core-js/modules/web.immediate.js":"49tUX","regenerator-runtime/runtime":"dXNgZ","./models":"edpJG","./views/recipe":"dRlYE","./views/searchView":"9OQAM","./views/resultsView":"cSbZE","./views/pagination":"lOFRU","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","./views/bookmarkView":"7YaI3"}],"49tUX":[function(require,module,exports) {
+},{"core-js/modules/web.immediate.js":"49tUX","regenerator-runtime/runtime":"dXNgZ","./models":"edpJG","./views/recipe":"dRlYE","./views/searchView":"9OQAM","./views/resultsView":"cSbZE","./views/pagination":"lOFRU","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","./views/bookmarkView":"7YaI3","./views/modalView":"8QpnA"}],"49tUX":[function(require,module,exports) {
 // TODO: Remove this module from `core-js@4` since it's split to modules listed below
 require("52e9b3eefbbce1ed");
 require("292fa64716f5b39e");
@@ -7539,6 +7545,44 @@ class BookmarkView extends (0, _previeViewDefault.default) {
 }
 exports.default = new BookmarkView();
 
-},{"./previeView":"hRMT5","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}]},["aD7Zm","aenu9"], "aenu9", "parcelRequire4e33")
+},{"./previeView":"hRMT5","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"8QpnA":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+var _view = require("./View");
+var _viewDefault = parcelHelpers.interopDefault(_view);
+class ModalView extends (0, _viewDefault.default) {
+    _btnOpen = document.querySelector(".nav__btn--add-recipe");
+    _btnClose = document.querySelector(".btn--close-modal");
+    _overlay = document.querySelector(".overlay");
+    _window = document.querySelector(".add-recipe-window");
+    _form = document.querySelector(".upload");
+    constructor(){
+        super();
+        this._addEventHandlerCloseModal();
+        this._addEventHandlerOpenModal();
+    }
+    addEventHandlerSubmit(callback) {
+        this._form.addEventListener("submit", function(e) {
+            e.preventDefault();
+            const data = new FormData(this);
+            callback(Object.fromEntries(data));
+        });
+    }
+    _addEventHandlerOpenModal() {
+        this._btnOpen.addEventListener("click", this._toggleModal.bind(this));
+    }
+    _addEventHandlerCloseModal() {
+        this._btnClose.addEventListener("click", this._toggleModal.bind(this));
+        this._overlay.addEventListener("click", this._toggleModal.bind(this));
+    }
+    _toggleModal() {
+        this._overlay.classList.toggle("hidden");
+        this._window.classList.toggle("hidden");
+    }
+    _generateMarkUp() {}
+}
+exports.default = new ModalView();
+
+},{"./View":"5cUXS","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}]},["aD7Zm","aenu9"], "aenu9", "parcelRequire4e33")
 
 //# sourceMappingURL=index.e37f48ea.js.map

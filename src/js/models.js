@@ -8,13 +8,16 @@ export const state = {
     query: '',
     results: [],
     resPerPage: MAX_SEARCH_RESULTS
-  }
+  },
+  bookmarks: []
 };
 
 export const loadRecipe = async (id) => {
   try {
     const data = await getJSON(API_URL + id);
     state.recipe = { ...data.data.recipe };
+    state.recipe.bookmarked = state.bookmarks.some(rec => rec.id === id)
+      ? true : false;
   } catch (e) {
     throw e;
   }
@@ -44,3 +47,13 @@ export const updateIngredients = (newServings) => {
   });
   state.recipe.servings = newServings;
 };
+
+export const addBookmark = (recipe) => {
+  state.bookmarks.push(recipe);
+  state.recipe.bookmarked = true;
+}
+
+export const deleteBookmark = (id) => {
+  state.bookmarks.splice(state.bookmarks.findIndex(bookmark => bookmark.id === id), 1);
+  state.recipe.bookmarked = false;
+}

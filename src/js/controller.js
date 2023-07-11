@@ -48,9 +48,17 @@ const paginationController = (page) => {
   PaginationView.render(Model.state.search);
 };
 
+const controllerToggleBookmark = () => {
+  Model.state.recipe.bookmarked
+    ? Model.deleteBookmark(Model.state.recipe.id)
+    : Model.addBookmark(Model.state.recipe);
+  RenderView.update(Model.state.recipe);
+}
+
 const init = () => {
   RenderView.addEventHandler(recipeController);
   SearchView.addEventHandler(searchController);
+  RenderView.addEventHandlerBookmark(controllerToggleBookmark);
   PaginationView.addEventHandler(paginationController);
   RenderView.addEventHandlerUpdateServings(recipeUpdateServings);
 }

@@ -25,6 +25,7 @@ export const searchRecipe = async (query) => {
     const data = await getJSON(`${API_URL}?search=${query}`);
     state.search.query = query;
     state.search.results = data.data.recipes;
+    state.search.page = 1;
   } catch (e) {
     throw e;
   }

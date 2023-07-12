@@ -67,6 +67,7 @@ const controllerAddRecipe = async (data) => {
 
     RenderView.render(Model.state.recipe);
     BookmarkView.render(Model.state.bookmarks);
+    window.history.pushState(null, '', `#${Model.state.recipe.id}`);
     ModalView.toggleModal();
   } catch (e) {
     ModalView.renderError(e.message);

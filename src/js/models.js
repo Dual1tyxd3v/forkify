@@ -1,5 +1,5 @@
 import { API_URL, MAX_SEARCH_RESULTS, KEY } from "./config";
-import { getJSON, postJSON } from "./helpers";
+import { ajax } from "./helpers";
 
 export const state = {
   recipe: {},
@@ -24,7 +24,7 @@ init();
 
 export const loadRecipe = async (id) => {
   try {
-    const data = await getJSON(API_URL + id);
+    const data = await ajax(`${API_URL}${id}?key=${KEY}`);
     state.recipe = { ...data.data.recipe };
     state.recipe.bookmarked = state.bookmarks.some(rec => rec.id === id)
       ? true : false;
@@ -35,7 +35,7 @@ export const loadRecipe = async (id) => {
 
 export const searchRecipe = async (query) => {
   try {
-    const data = await getJSON(`${API_URL}?search=${query}`);
+    const data = await ajax(`${API_URL}?search=${query}&key=${KEY}`);
     state.search.query = query;
     state.search.results = data.data.recipes;
     state.search.page = 1;
@@ -94,7 +94,7 @@ export const uploadRecipe = async (data) => {
       cooking_time: data.cooking_time,
     };
 
-    const newRecipe = await postJSON(`${API_URL}?key=${KEY}`, recipe);
+    const newRecipe = await ajax(`${API_URL}?key=${KEY}`, recipe);
     newRecipe.data.recipe.bookmarked = true;
     addBookmark(newRecipe.data.recipe);
 

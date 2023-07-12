@@ -634,6 +634,7 @@ const controllerAddRecipe = async (data)=>{
         await _models.uploadRecipe(data);
         (0, _recipeDefault.default).render(_models.state.recipe);
         (0, _bookmarkViewDefault.default).render(_models.state.bookmarks);
+        window.history.pushState(null, "", `#${_models.state.recipe.id}`);
         (0, _modalViewDefault.default).toggleModal();
     } catch (e) {
         (0, _modalViewDefault.default).renderError(e.message);
@@ -2579,7 +2580,7 @@ const init = ()=>{
 init();
 const loadRecipe = async (id)=>{
     try {
-        const data = await (0, _helpers.getJSON)((0, _config.API_URL) + id);
+        const data = await (0, _helpers.ajax)(`${(0, _config.API_URL)}${id}?key=${(0, _config.KEY)}`);
         state.recipe = {
             ...data.data.recipe
         };
@@ -2590,7 +2591,7 @@ const loadRecipe = async (id)=>{
 };
 const searchRecipe = async (query)=>{
     try {
-        const data = await (0, _helpers.getJSON)(`${(0, _config.API_URL)}?search=${query}`);
+        const data = await (0, _helpers.ajax)(`${(0, _config.API_URL)}?search=${query}&key=${(0, _config.KEY)}`);
         state.search.query = query;
         state.search.results = data.data.recipes;
         state.search.page = 1;
@@ -2642,7 +2643,7 @@ const uploadRecipe = async (data)=>{
             servings: data.servings,
             cooking_time: data.cooking_time
         };
-        const newRecipe = await (0, _helpers.postJSON)(`${(0, _config.API_URL)}?key=${(0, _config.KEY)}`, recipe);
+        const newRecipe = await (0, _helpers.ajax)(`${(0, _config.API_URL)}?key=${(0, _config.KEY)}`, recipe);
         newRecipe.data.recipe.bookmarked = true;
         addBookmark(newRecipe.data.recipe);
         state.recipe = newRecipe.data.recipe;
@@ -2696,8 +2697,7 @@ exports.export = function(dest, destName, get) {
 },{}],"hGI1E":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "getJSON", ()=>getJSON);
-parcelHelpers.export(exports, "postJSON", ()=>postJSON);
+parcelHelpers.export(exports, "ajax", ()=>ajax);
 var _config = require("./config");
 const timeout = function(s) {
     return new Promise(function(_, reject) {
@@ -2706,31 +2706,19 @@ const timeout = function(s) {
         }, s * 1000);
     });
 };
-const getJSON = async (url)=>{
+const ajax = async (url, body = null)=>{
     try {
         const resp = await Promise.race([
-            fetch(url),
-            timeout((0, _config.FETCH_DELAY))
-        ]);
-        if (!resp.ok) throw new Error("Could not found!");
-        return await resp.json();
-    } catch (e) {
-        throw e;
-    }
-};
-const postJSON = async (url, body)=>{
-    try {
-        const resp = await Promise.race([
-            fetch(url, {
+            body ? fetch(url, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"
                 },
                 body: JSON.stringify(body)
-            }),
+            }) : fetch(url),
             timeout((0, _config.FETCH_DELAY))
         ]);
-        if (!resp.ok) throw new Error("Could not post!");
+        if (!resp.ok) throw new Error("Could not found!");
         return await resp.json();
     } catch (e) {
         throw e;
@@ -2884,7 +2872,7 @@ class RecipeView extends (0, _viewDefault.default) {
         </div>
       </div>
 
-      <div class="recipe__user-generated">
+      <div class="recipe__user-generated ${this._data.key ? "" : "hidden"}">
         <svg>
           <use href="${0, _iconsSvgDefault.default}#icon-user"></use>
         </svg>
@@ -7536,7 +7524,7 @@ class PreviewView extends (0, _viewDefault.default) {
           <div class="preview__data">
             <h4 class="preview__title">${rec.title}</h4>
             <p class="preview__publisher">${rec.publisher}</p>
-            <div class="preview__user-generated">
+            <div class="preview__user-generated ${rec.key ? "" : "hidden"}">
               <svg>
                 <use href="${0, _iconsSvgDefault.default}#icon-user"></use>
               </svg>

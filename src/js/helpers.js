@@ -8,9 +8,16 @@ const timeout = function (s) {
   });
 };
 
-export const getJSON = async (url) => {
+export const ajax = async (url, body = null) => {
   try {
-    const resp = await Promise.race([fetch(url), timeout(FETCH_DELAY)]);
+    const resp = await Promise.race([body
+      ? fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(body)
+      }) : fetch(url), timeout(FETCH_DELAY)]);
 
     if (!resp.ok) throw new Error('Could not found!');
 
@@ -18,22 +25,4 @@ export const getJSON = async (url) => {
   } catch (e) {
     throw e;
   }
-}; 
-
-export const postJSON = async (url, body) => {
-  try {
-    const resp = await Promise.race([fetch(url, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(body)
-    }), timeout(FETCH_DELAY)]);
-
-    if (!resp.ok) throw new Error('Could not post!');
-
-    return await resp.json();
-  } catch (e) {
-    throw e;
-  }
-}; 
+};

@@ -2,6 +2,7 @@
   "name": "fortify",
   "version": "1.0.0",
   "description": "Учебный проект из курса Advanced JavaScript by Jonas Schmedtmann",
+  "default": "index.html",
   "scripts": {
     "start": "parcel index.html",
     "build": "parcel build index.html"
@@ -15,8 +16,7 @@
   },
   "dependencies": {
     "core-js": "^3.31.1",
-    "fractional": "^1.0.0",
-    "git-filter-repo": "^0.0.30",
+    "fracty": "^1.0.9",
     "regenerator-runtime": "^0.13.11"
   }
 }

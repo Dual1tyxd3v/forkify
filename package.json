@@ -2,10 +2,9 @@
   "name": "fortify",
   "version": "1.0.0",
   "description": "Учебный проект из курса Advanced JavaScript by Jonas Schmedtmann",
-  "main": "index.js",
   "scripts": {
     "start": "parcel index.html",
-    "build": "parcel buidl index.html"
+    "build": "parcel build index.html"
   },
   "author": "dual1tyxd3v",
   "license": "ISC",
